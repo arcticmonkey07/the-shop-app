@@ -9,7 +9,7 @@ export const fetchProducts = () => {
   return async (dispatch) => {
     try {
       const response = await fetch(
-        'https://rn-shop-app-a1e1e.firebaseio.com/products.jon'
+        'https://rn-shop-app-a1e1e.firebaseio.com/products.json'
       );
 
       if (!response.ok) {
@@ -41,7 +41,17 @@ export const fetchProducts = () => {
 };
 
 export const deleteProduct = (productId) => {
-  return { type: DELETE_PRODUCT, pid: productId };
+  return async (dispatch) => {
+    const response = await fetch(`https://rn-shop-app-a1e1e.firebaseio.com/products/${productId}.json`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('Something went wrong!');
+    }
+
+    dispatch({ type: DELETE_PRODUCT, pid: productId });
+  };
 };
 
 export const createProduct = (title, description, imageUrl, price) => {
@@ -78,14 +88,32 @@ export const createProduct = (title, description, imageUrl, price) => {
   };
 };
 
-export const updateProduct = (id, title, description, imageUrl, price) => {
-  return {
-    type: UPDATE_PRODUCT,
-    pid: id,
-    productData: {
-      title,
-      description,
-      imageUrl,
-    },
+export const updateProduct = (id, title, description, imageUrl) => {
+  return async (dispatch) => {
+    const response = await fetch(`https://rn-shop-app-a1e1e.firebaseio.com/products/${id}.json`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title,
+        description,
+        imageUrl,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Something went wrong!');
+    }
+
+    dispatch({
+      type: UPDATE_PRODUCT,
+      pid: id,
+      productData: {
+        title,
+        description,
+        imageUrl,
+      },
+    });
   };
 };
